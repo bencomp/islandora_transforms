@@ -12,24 +12,25 @@
   <xsl:include href="library/xslt-date-template.xslt"/>
   <!-- <xsl:include href="/usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/config/index/FgsIndex/islandora_transforms/manuscript_finding_aid.xslt"/> -->
   <!-- <xsl:include href="/usr/local/fedora/tomcat/webapps/fedoragsearch/WEB-INF/classes/fgsconfigFinal/index/FgsIndex/islandora_transforms/manuscript_finding_aid.xslt"/> -->
-  <xsl:include href="manuscript_finding_aid.xslt"/>
+  <!--<xsl:include href="manuscript_finding_aid.xslt"/>-->
   <!-- HashSet to track single-valued fields. -->
   <xsl:variable name="single_valued_hashset" select="java:java.util.HashSet.new()"/>
 
-  <xsl:template match="foxml:datastream[@ID='MODS']/foxml:datastreamVersion[last()]" name="index_MODS">
+  <xsl:template match="/" name="index_MODS">
     <xsl:param name="content"/>
     <xsl:param name="prefix"></xsl:param>
     <xsl:param name="suffix">ms</xsl:param>
 
     <!-- Clearing hash in case the template is ran more than once. -->
     <xsl:variable name="return_from_clear" select="java:clear($single_valued_hashset)"/>
-
-    <xsl:apply-templates mode="slurping_MODS" select="$content//mods:mods[1]">
+<add><doc>
+    <xsl:apply-templates mode="slurping_MODS" select="mods:mods[1]">
       <xsl:with-param name="prefix" select="$prefix"/>
       <xsl:with-param name="suffix" select="$suffix"/>
       <xsl:with-param name="pid" select="../../@PID"/>
       <xsl:with-param name="datastream" select="../@ID"/>
     </xsl:apply-templates>
+</doc></add>
   </xsl:template>
 
   <!-- Handle dates. -->
@@ -42,11 +43,11 @@
     <xsl:variable name="rawTextValue" select="normalize-space(text())"/>
 
     <xsl:variable name="textValue">
-      <xsl:call-template name="get_ISO8601_date">
+      <!--<xsl:call-template name="get_ISO8601_date">
         <xsl:with-param name="date" select="$rawTextValue"/>
         <xsl:with-param name="pid" select="$pid"/>
         <xsl:with-param name="datastream" select="$datastream"/>
-      </xsl:call-template>
+      </xsl:call-template>-->
     </xsl:variable>
 
     <!-- Use attributes in field name. -->
@@ -66,7 +67,7 @@
     <xsl:variable name="field_name" select="normalize-space(concat($this_prefix, local-name()))"/>
     <!-- The method java.util.HashSet.add will return false when the value is
          already in the set. -->
-    <xsl:if test="java:add($single_valued_hashset, $field_name)">
+    <xsl:if test="true"> <!-- java:add($single_valued_hashset, $field_name) -->
       <xsl:if test="not(normalize-space($textValue)='')">
         <field>
           <xsl:attribute name="name">
@@ -307,7 +308,7 @@
               does not already exist, that is). -->
             <!-- XXX: We make some assumptions about the schema here...
               Primarily, _s getting copied to the same places as _ms. -->
-            <xsl:when test="$suffix='ms' and java:add($single_valued_hashset, string($prefix))">
+            <xsl:when test="$suffix='ms'"> <!--  and java:add($single_valued_hashset, string($prefix)) -->
               <xsl:value-of select="concat($prefix, 's')"/>
             </xsl:when>
             <xsl:otherwise>
